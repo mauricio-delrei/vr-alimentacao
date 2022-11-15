@@ -1,0 +1,70 @@
+version: "3.7"
+
+#services:
+
+  #mongo:
+    #image: mongo:4.2
+    #hostname: mongo
+    #container_name: mongo
+    #ports:
+      #- 27017:27017
+    #environment:
+      #MONGO_INITDB_DATABASE: miniautorizador
+      #MONGO_INITDB_ROOT_USERNAME: user
+      #MONGO_INITDB_ROOT_PASSWORD: password
+    #volumes:
+      #- ./scripts/init.js:/docker-entrypoint-initdb.d/init.js:ro
+
+  #mysql:
+    #image: mysql:5.7
+    #hostname: mysql
+    #container_name: mysql
+    #restart: always
+    #ports:
+      #- "3306:3306"
+    #environment:
+      #MYSQL_DATABASE: miniautorizador
+      #MYSQL_ROOT_USER:
+      #MYSQL_ROOT_PASSWORD:
+      #MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+
+
+services:
+  postgres:
+    container_name: postgres_container
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5433:5433"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - postgres
+    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  postgres:
+  pgadmin:
